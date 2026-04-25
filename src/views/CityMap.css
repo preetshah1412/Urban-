@@ -1,155 +1,69 @@
 .city-map-container {
   width: 100vw;
   height: 100vh;
-  background: #03050a;
   position: relative;
   overflow: hidden;
 }
 
-/* Urban Lens Header */
-#urban-lens-header {
-  position: absolute;
-  top: 20px;
+.fade-in {
+  animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.slide-in {
+  animation: slideIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes slideIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Metric Strip */
+#metric-strip {
+  position: fixed;
+  top: 100px; /* Below the top nav */
   left: 50%;
   transform: translateX(-50%);
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  padding: 10px 40px;
-  gap: 60px;
-  border-radius: 100px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-}
-
-.header-brand {
-  font-family: 'Outfit', sans-serif;
-  font-weight: 800;
-  letter-spacing: 2px;
-  font-size: 1.2rem;
-  color: #fff;
-}
-
-.header-brand span {
-  color: #00d2ff;
-  margin-left: 2px;
-}
-
-.header-metrics {
   display: flex;
   gap: 40px;
-}
-
-.h-metric {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.5);
-  letter-spacing: 1px;
-}
-
-.h-metric span {
-  display: block;
-  font-size: 1.1rem;
-  color: #fff;
-  font-weight: 800;
-  margin-top: 2px;
-}
-
-.h-metric.highlight span {
-  color: #00d2ff;
-}
-
-/* 3D Labels */
-.district-label {
-  color: var(--d-color);
-  font-family: 'Outfit', sans-serif;
-  font-weight: 800;
-  font-size: 0.7rem;
-  letter-spacing: 1.5px;
-  text-shadow: 0 0 10px var(--d-color);
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-.pin-label {
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  background: rgba(0,0,0,0.6);
-  padding: 2px 8px;
-  border-radius: 4px;
-  border: 1px solid currentColor;
-  margin-top: 10px;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-/* Drop Form */
-#urban-drop-form {
-  position: absolute;
-  bottom: 40px;
-  right: 40px;
-  width: 320px;
-  padding: 30px;
+  padding: 15px 40px;
   z-index: 100;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  align-items: center;
+}
+.metric {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.metric-label {
+  font-size: 0.65rem; color: #8892b0; text-transform: uppercase; letter-spacing: 1.5px;
+}
+.metric-value {
+  font-size: 1.4rem; font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.2);
 }
 
-.form-tip {
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.4);
-  margin-bottom: 15px;
+/* Form Overlay */
+#add-issue-form {
+  position: fixed;
+  bottom: 40px; right: 40px;
+  padding: 25px;
+  width: 320px;
+  z-index: 10;
+  display: flex; flex-direction: column; gap: 15px;
 }
-
-#urban-drop-form h3 {
-  font-size: 1rem;
-  letter-spacing: 1px;
-  margin-bottom: 20px;
-  color: #fff;
-}
-
-#urban-drop-form input {
-  width: 100%;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #fff;
+#add-issue-form input, #add-issue-form select {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--glass-border);
+  color: white;
   padding: 12px;
-  border-radius: 6px;
-  margin-bottom: 15px;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
   font-family: inherit;
 }
-
-.glass-btn {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 6px;
-  font-weight: 800;
-  font-size: 0.7rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.glass-btn.submit {
-  background: #00d2ff;
-  color: #000;
-}
-
-.glass-btn.cancel {
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-}
-
-.glass-btn:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
-}
-
-/* Animations */
-.fade-in { animation: fadeIn 1s ease-out; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.slide-in { animation: slideIn 0.5s ease-out; }
-@keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+#add-issue-form input:focus { border-color: var(--cyan); }
+#add-issue-form option { background: #03050a; }
