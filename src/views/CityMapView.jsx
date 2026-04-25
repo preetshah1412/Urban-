@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, OrbitControls, Environment, Center } from '@react-three/drei';
+import { useGLTF, OrbitControls, Environment, Center, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import './CityMap.css';
 
@@ -10,16 +10,23 @@ const STATUS_COLORS = {
   resolved: 0x00ff66
 };
 
+const DISTRICTS = [
+  { name: 'NEON MARKET', pos: [-150, 5, 100], color: '#00d2ff' },
+  { name: 'TECH QUARTER', pos: [50, 5, -120], color: '#bf00ff' },
+  { name: 'CIVIC CORE', pos: [-80, 5, -50], color: '#ff00ff' },
+  { name: 'INDUSTRIAL BELT', pos: [120, 5, 40], color: '#ff6600' }
+];
+
 function Pins({ issues }) {
   const groupRef = useRef();
 
   useFrame((state) => {
     if (!groupRef.current) return;
-    const time = state.clock.getElapsedTime() * 5;
+    const time = state.clock.getElapsedTime() * 4;
     groupRef.current.children.forEach(pin => {
       if (pin.userData.isPin) {
-        const scale = 1 + 0.1 * Math.sin(time + pin.userData.phase);
-        pin.children[1].scale.set(scale, scale, scale);
+        const bounce = Math.sin(time + pin.userData.phase) * 0.5;
+        pin.children[1].position.y = 3 + bounce; // Orb bounce
       }
     });
   });
@@ -36,20 +43,23 @@ function Pins({ issues }) {
             position={[issue.x, issue.y, issue.z]} 
             userData={{ isPin: true, id: issue.id, phase }}
           >
-            {/* Beam */}
-            <mesh position={[0, 0.75, 0]}>
-              <cylinderGeometry args={[0.005, 0.005, 1.5]} />
-              <meshBasicMaterial color={color} transparent opacity={0.3} />
-            </mesh>
-            {/* Floating Orb */}
+            {/* Ultra-Thin Connector */}
             <mesh position={[0, 1.5, 0]}>
-              <sphereGeometry args={[0.15, 16, 16]} />
-              <meshBasicMaterial color={color} />
+              <cylinderGeometry args={[0.005, 0.005, 3]} />
+              <meshBasicMaterial color={color} transparent opacity={0.6} />
             </mesh>
-            {/* Ground Ring */}
+            {/* Tiny Glowing Orb */}
+            <mesh position={[0, 3, 0]}>
+              <sphereGeometry args={[0.2, 16, 16]} />
+              <meshBasicMaterial color={color} />
+              <Html distanceFactor={15}>
+                <div className="pin-label" style={{ color }}>{issue.title}</div>
+              </Html>
+            </mesh>
+            {/* Ground Pulse */}
             <mesh rotation={[-Math.PI/2, 0, 0]} position={[0, 0.02, 0]}>
-              <ringGeometry args={[0.15, 0.3, 32]} />
-              <meshBasicMaterial color={color} side={THREE.DoubleSide} transparent opacity={0.6} />
+              <ringGeometry args={[0.1, 0.4, 32]} />
+              <meshBasicMaterial color={color} side={THREE.DoubleSide} transparent opacity={0.4} />
             </mesh>
           </group>
         );
@@ -62,18 +72,16 @@ function CityModel({ onCityClick }) {
   const { scene } = useGLTF('/cyberpunk_city_-_1.glb');
   
   useEffect(() => {
-    // 1. Stable Scaling
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3()).length();
     const center = box.getCenter(new THREE.Vector3());
     
-    // Offset the internal scene once so [0,0,0] is the city center
     scene.position.x -= center.x;
     scene.position.y -= center.y;
     scene.position.z -= center.z;
-    scene.position.y = 0; // Keep floor at zero
+    scene.position.y = 0; 
     
-    const desiredSize = 400; 
+    const desiredSize = 800; // Much larger
     const scale = desiredSize / size;
     scene.scale.set(scale, scale, scale);
 
@@ -86,13 +94,23 @@ function CityModel({ onCityClick }) {
   }, [scene]);
 
   return (
-    <primitive 
-      object={scene} 
-      onClick={(e) => {
-        e.stopPropagation();
-        onCityClick(e.point);
-      }}
-    />
+    <group>
+      <primitive 
+        object={scene} 
+        onClick={(e) => {
+          e.stopPropagation();
+          onCityClick(e.point);
+        }}
+      />
+      {/* District Labels */}
+      {DISTRICTS.map(d => (
+        <group key={d.name} position={d.pos}>
+          <Html distanceFactor={20} center>
+            <div className="district-label" style={{ '--d-color': d.color }}>{d.name}</div>
+          </Html>
+        </group>
+      ))}
+    </group>
   );
 }
 
@@ -129,37 +147,61 @@ export default function CityMapView({ issues, onAddIssue }) {
   const resolutionRate = issues.length ? Math.round((resolvedCount / issues.length) * 100) : 0;
 
   return (
-    <div className="city-map-container fade-in" style={{ cursor: 'default' }}>
-      <div id="metric-strip" className="glass" style={{ pointerEvents: 'auto' }}>
-        <div className="metric">
-          <span className="metric-label">Nexus Points</span>
-          <span className="metric-value">{issues.length}</span>
-        </div>
-        <div className="metric">
-          <span className="metric-label">Efficiency</span>
-          <span className="metric-value">{resolutionRate}%</span>
+    <div className="city-map-container fade-in">
+      <div id="urban-lens-header" className="glass">
+        <div className="header-brand">URBAN<span>LENS</span></div>
+        <div className="header-metrics">
+          <div className="h-metric">REPORTS <span>{issues.length}</span></div>
+          <div className="h-metric">RATE <span>{resolutionRate}%</span></div>
+          <div className="h-metric highlight">HOTSPOT <span>INDUSTRIAL BELT</span></div>
         </div>
       </div>
 
       <Canvas 
         shadows={{ type: THREE.PCFShadowMap }}
-        camera={{ position: [70, 70, 70], fov: 45 }}
+        camera={{ position: [250, 150, 250], fov: 45 }}
       >
-        <ambientLight intensity={4.0} color="#ffffff" />
-        <spotLight position={[100, 200, 100]} angle={0.5} penumbra={1} intensity={20} castShadow />
-        <pointLight position={[-100, 50, -100]} intensity={10} color="#00d2ff" />
+        <ambientLight intensity={3.0} />
+        <spotLight position={[200, 400, 200]} angle={0.4} penumbra={1} intensity={25} castShadow />
+        <pointLight position={[-200, 100, -200]} intensity={15} color="#00d2ff" />
         
         <CityModel onCityClick={handleCityClick} />
         <Pins issues={issues} />
         
+        {/* Deep Horizon Floor */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
+          <planeGeometry args={[2000, 2000]} />
+          <meshBasicMaterial color="#03050a" />
+        </mesh>
+
         <OrbitControls 
           enableDamping 
           dampingFactor={0.05} 
           target={[0, 0, 0]}
-          maxPolarAngle={Math.PI / 2.1} 
+          maxPolarAngle={Math.PI / 2.2} 
         />
-        <Environment preset="city" />
+        <Environment preset="night" />
       </Canvas>
+
+      {showForm && (
+        <div id="urban-drop-form" className="glass slide-in">
+          <div className="form-tip">Double-click the map to drop a pin</div>
+          <h3>DROP A PIN</h3>
+          <input ref={titleRef} type="text" placeholder="Describe the issue..." autoFocus />
+          <select style={{ marginBottom: 15, background: 'rgba(0,0,0,0.4)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '4px', width: '100%' }}>
+            <option>Infrastructure</option>
+            <option>Sanitation</option>
+            <option>Safety</option>
+          </select>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button className="glass-btn cancel" onClick={() => setShowForm(false)}>CANCEL</button>
+            <button className="glass-btn submit" onClick={submitIssue}>PIN TO MAP</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
       {showForm && (
         <div 
