@@ -2,7 +2,7 @@
   position: relative;
   width: 100vw;
   /* 3 viewports tall to give plenty of scroll room */
-  height: 300vh; 
+  height: 300vh;
   background: var(--bg);
 }
 
@@ -13,7 +13,8 @@
   width: 100vw;
   height: 100vh;
   z-index: 1;
-  pointer-events: none; /* Prevents canvas from intercepting scroll events */
+  pointer-events: none;
+  /* Prevents canvas from intercepting scroll events */
 }
 
 .landing-scroll-content {
@@ -27,7 +28,8 @@
   justify-content: space-between;
   padding: 100px 10%;
   z-index: 10;
-  pointer-events: none; /* Let clicks pass through except on cards/buttons */
+  pointer-events: none;
+  /* Let clicks pass through except on cards/buttons */
 }
 
 .hero-section {
@@ -92,13 +94,27 @@
 }
 
 @keyframes scrollWheel {
-  0% { transform: translate(-50%, 0); opacity: 1; }
-  100% { transform: translate(-50%, 10px); opacity: 0; }
+  0% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, 10px);
+    opacity: 0;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .middle-section {
@@ -114,11 +130,13 @@
   padding: 30px;
   pointer-events: auto;
 }
+
 .info-card h3 {
   font-size: 1.2rem;
   color: var(--cyan);
   margin-bottom: 12px;
 }
+
 .info-card p {
   font-size: 0.95rem;
   color: var(--text-dim);
@@ -153,6 +171,7 @@
   border: 2px solid var(--cyan);
   box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
 }
+
 .enter-btn:hover {
   background: rgba(0, 210, 255, 0.4);
   box-shadow: 0 0 40px rgba(0, 210, 255, 0.5);

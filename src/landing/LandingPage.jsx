@@ -20,7 +20,7 @@ export default function LandingPage({ onEnter }) {
         onUpdate: (self) => setProgress(self.progress)
       });
     }, wrapperRef);
-    
+
     return () => ctx.revert();
   }, []);
 
@@ -35,7 +35,7 @@ export default function LandingPage({ onEnter }) {
 
       {/* Scrolling Content Overlay */}
       <div className="landing-scroll-content">
-        
+
         <div className="hero-section">
           <h1 className="hero-title">POLIS NEXUS</h1>
           <p className="hero-subtitle">

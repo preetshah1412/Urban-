@@ -1,0 +1,69 @@
+.city-map-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.fade-in {
+  animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.slide-in {
+  animation: slideIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes slideIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Metric Strip */
+#metric-strip {
+  position: fixed;
+  top: 100px; /* Below the top nav */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 40px;
+  padding: 15px 40px;
+  z-index: 100;
+  align-items: center;
+}
+.metric {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.metric-label {
+  font-size: 0.65rem; color: #8892b0; text-transform: uppercase; letter-spacing: 1.5px;
+}
+.metric-value {
+  font-size: 1.4rem; font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+/* Form Overlay */
+#add-issue-form {
+  position: fixed;
+  bottom: 40px; right: 40px;
+  padding: 25px;
+  width: 320px;
+  z-index: 10;
+  display: flex; flex-direction: column; gap: 15px;
+}
+#add-issue-form input, #add-issue-form select {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--glass-border);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+#add-issue-form input:focus { border-color: var(--cyan); }
+#add-issue-form option { background: #03050a; }

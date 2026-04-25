@@ -20,7 +20,7 @@ function CityModel() {
     
     scene.position.y = 0;
     
-    const desiredSize = 400; // Larger city
+    const desiredSize = 200;
     const scale = desiredSize / size;
     scene.scale.set(scale, scale, scale);
     
@@ -64,23 +64,23 @@ function Pins({ issues }) {
         return (
           <group 
             key={issue.id} 
-            position={[issue.x, 2, issue.z]} 
+            position={[issue.x, 5, issue.z]} 
             userData={{ isPin: true, id: issue.id, phase }}
           >
             {/* Shaft */}
             <mesh>
-              <cylinderGeometry args={[0.2, 0.2, 4]} />
-              <meshBasicMaterial color={0xffffff} transparent opacity={0.6} />
+              <cylinderGeometry args={[0.5, 0.5, 10]} />
+              <meshBasicMaterial color={0xffffff} transparent opacity={0.5} />
             </mesh>
             {/* Orb */}
-            <mesh position={[0, 2.5, 0]}>
-              <sphereGeometry args={[1.2, 16, 16]} />
+            <mesh position={[0, 6, 0]}>
+              <sphereGeometry args={[3, 16, 16]} />
               <meshBasicMaterial color={color} />
             </mesh>
             {/* Halo Ground */}
-            <mesh position={[0, -1.9, 0]} rotation={[-Math.PI/2, 0, 0]}>
-              <ringGeometry args={[0.8, 2.5 + (issue.votes * 0.05), 32]} />
-              <meshBasicMaterial color={color} side={THREE.DoubleSide} transparent opacity={0.3} />
+            <mesh position={[0, -4.9, 0]} rotation={[-Math.PI/2, 0, 0]}>
+              <ringGeometry args={[2, 5 + (issue.votes * 0.1), 32]} />
+              <meshBasicMaterial color={color} side={THREE.DoubleSide} transparent opacity={0.2} />
             </mesh>
           </group>
         );
@@ -158,7 +158,7 @@ export default function CityMapView() {
         </div>
       </div>
 
-      <Canvas shadows camera={{ position: [0, 80, 80], fov: 45 }}>
+      <Canvas shadows camera={{ position: [0, 150, 150], fov: 45 }}>
         <ambientLight intensity={6.0} color="#ffffff" />
         <directionalLight 
           position={[50, 150, 50]} 

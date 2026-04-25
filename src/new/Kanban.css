@@ -1,0 +1,103 @@
+.kanban-view-container {
+  width: 100vw;
+  height: 100vh;
+  padding: 100px 40px 40px;
+  background: radial-gradient(circle at 50% 50%, #0d131f 0%, #03050a 100%);
+  display: flex;
+  justify-content: center;
+}
+
+.kanban-board {
+  display: flex; gap: 40px; width: 100%; max-width: 1400px; height: 100%;
+}
+
+.kanban-column {
+  flex: 1;
+  display: flex; flex-direction: column;
+  padding: 25px;
+}
+
+.kanban-header {
+  font-size: 1.1rem; font-weight: 800; text-transform: uppercase;
+  margin-bottom: 25px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding-bottom: 15px;
+}
+
+.kanban-cards {
+  flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 20px;
+  min-height: 150px; 
+}
+
+.card {
+  position: relative;
+  background: rgba(20, 25, 35, 0.8);
+  border: 1px solid rgba(0, 210, 255, 0.2);
+  border-left: 4px solid var(--card-color, #fff);
+  padding: 20px;
+  border-radius: 12px;
+  cursor: grab;
+  user-select: none;
+  transition: box-shadow 0.2s ease, transform 0.1s ease-out, filter 0.2s; 
+}
+.card:hover {
+  background: rgba(30, 35, 45, 0.9);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
+.card:active { cursor: grabbing; }
+
+.card-title { font-weight: 600; font-size: 1.1rem; margin-bottom: 15px; line-height: 1.4; }
+.card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-dim); }
+
+.upvote-btn {
+  background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: #fff;
+  border-radius: 20px; padding: 6px 12px; cursor: pointer;
+  display: flex; align-items: center; gap: 8px; transition: all 0.2s;
+  font-weight: 600;
+}
+.upvote-btn:hover { background: rgba(0, 210, 255, 0.2); transform: scale(1.05); }
+
+/* Glowing particle effect for resolved */
+@keyframes resolved-flow {
+  0% { box-shadow: 0 0 10px var(--green), inset 0 0 5px var(--green); }
+  50% { box-shadow: 0 0 20px var(--green), inset 0 0 10px var(--green); }
+  100% { box-shadow: 0 0 10px var(--green), inset 0 0 5px var(--green); }
+}
+
+.card.resolved-badge {
+  border: 1px solid var(--green);
+  border-left: 4px solid var(--green);
+  animation: resolved-flow 2s infinite;
+  overflow: hidden;
+}
+
+.card.resolved-badge::after {
+  content: '✓ VERIFIED';
+  position: absolute;
+  top: 15px; right: 15px;
+  font-size: 0.65rem;
+  color: var(--green);
+  font-weight: 800;
+  text-shadow: 0 0 10px var(--green);
+  letter-spacing: 1px;
+}
+
+.particle {
+  position: absolute;
+  width: 4px; height: 4px;
+  background: var(--green);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: float-up 1.5s ease-in-out infinite;
+  opacity: 0;
+  bottom: 0;
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-30px); opacity: 0; }
+}
