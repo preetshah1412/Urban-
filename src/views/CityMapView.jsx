@@ -1,13 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, OrbitControls, Environment } from '@react-three/drei';
+import { useGLTF, OrbitControls, Environment, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import './CityMap.css';
 
 const STATUS_COLORS = {
-  pending: 0xff2a2a,     // Red
-  'in-progress': 0xffde00, // Yellow/Gold
-  resolved: 0x00ff66     // Neon Green
+  pending: 0xff2a2a,
+  'in-progress': 0xffde00,
+  resolved: 0x00ff66
 };
 
 function Pins({ issues }) {
@@ -16,10 +16,9 @@ function Pins({ issues }) {
   useFrame((state) => {
     if (!groupRef.current) return;
     const time = state.clock.getElapsedTime() * 5;
-    
     groupRef.current.children.forEach(pin => {
       if (pin.userData.isPin) {
-        const scale = 1 + 0.2 * Math.sin(time + pin.userData.phase);
+        const scale = 1 + 0.1 * Math.sin(time + pin.userData.phase);
         pin.children[1].scale.set(scale, scale, scale);
       }
     });
@@ -34,20 +33,23 @@ function Pins({ issues }) {
         return (
           <group 
             key={issue.id} 
-            position={[issue.x, issue.y + 2, issue.z]} 
+            position={[issue.x, issue.y, issue.z]} 
             userData={{ isPin: true, id: issue.id, phase }}
           >
-            <mesh>
-              <cylinderGeometry args={[0.1, 0.1, 4]} />
-              <meshBasicMaterial color={0xffffff} transparent opacity={0.4} />
+            {/* Beam */}
+            <mesh position={[0, 5, 0]}>
+              <cylinderGeometry args={[0.05, 0.05, 10]} />
+              <meshBasicMaterial color={color} transparent opacity={0.3} />
             </mesh>
-            <mesh position={[0, 2.5, 0]}>
-              <sphereGeometry args={[0.8, 16, 16]} />
+            {/* Floating Orb */}
+            <mesh position={[0, 10, 0]}>
+              <sphereGeometry args={[1.5, 16, 16]} />
               <meshBasicMaterial color={color} />
             </mesh>
-            <mesh position={[0, -1.9, 0]} rotation={[-Math.PI/2, 0, 0]}>
-              <ringGeometry args={[0.4, 1.5, 32]} />
-              <meshBasicMaterial color={color} side={THREE.DoubleSide} transparent opacity={0.3} />
+            {/* Ground Ring */}
+            <mesh rotation={[-Math.PI/2, 0, 0]} position={[0, 0.1, 0]}>
+              <ringGeometry args={[1, 2, 32]} />
+              <meshBasicMaterial color={color} side={THREE.DoubleSide} transparent opacity={0.6} />
             </mesh>
           </group>
         );
@@ -60,19 +62,6 @@ function CityModel({ onCityClick }) {
   const { scene } = useGLTF('/cyberpunk_city_-_1.glb');
   
   useEffect(() => {
-    const box = new THREE.Box3().setFromObject(scene);
-    const size = box.getSize(new THREE.Vector3()).length();
-    const center = box.getCenter(new THREE.Vector3());
-    
-    scene.position.x += (scene.position.x - center.x);
-    scene.position.y += (scene.position.y - center.y); 
-    scene.position.z += (scene.position.z - center.z);
-    scene.position.y = 0;
-    
-    const desiredSize = 400; 
-    const scale = desiredSize / size;
-    scene.scale.set(scale, scale, scale);
-    
     scene.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -128,30 +117,34 @@ export default function CityMapView({ issues, onAddIssue }) {
     <div className="city-map-container fade-in" style={{ cursor: 'default' }}>
       <div id="metric-strip" className="glass" style={{ pointerEvents: 'auto' }}>
         <div className="metric">
-          <span className="metric-label">City Infrastructure</span>
+          <span className="metric-label">Nexus Points</span>
           <span className="metric-value">{issues.length}</span>
         </div>
         <div className="metric">
-          <span className="metric-label">Resolution</span>
+          <span className="metric-label">Efficiency</span>
           <span className="metric-value">{resolutionRate}%</span>
         </div>
       </div>
 
       <Canvas 
         shadows 
-        camera={{ position: [0, 80, 80], fov: 45 }}
+        camera={{ position: [150, 150, 150], fov: 45 }}
       >
-        <ambientLight intensity={6.0} color="#ffffff" />
-        <spotLight position={[50, 150, 50]} angle={0.3} penumbra={1} intensity={15} castShadow />
-        <directionalLight position={[-50, 50, -50]} intensity={5.0} color="#00d2ff" />
+        <ambientLight intensity={4.0} color="#ffffff" />
+        <spotLight position={[100, 200, 100]} angle={0.5} penumbra={1} intensity={20} castShadow />
+        <pointLight position={[-100, 50, -100]} intensity={10} color="#00d2ff" />
         
-        <CityModel onCityClick={handleCityClick} />
+        <Center top>
+          <CityModel onCityClick={handleCityClick} />
+        </Center>
+        
         <Pins issues={issues} />
         
         <OrbitControls 
           enableDamping 
           dampingFactor={0.05} 
-          maxPolarAngle={Math.PI / 2 - 0.1} 
+          target={[0, 0, 0]}
+          maxPolarAngle={Math.PI / 2.1} 
         />
         <Environment preset="city" />
       </Canvas>
@@ -164,10 +157,10 @@ export default function CityMapView({ issues, onAddIssue }) {
           style={{ zIndex: 1000 }}
         >
           <h3 style={{ marginBottom: 10, fontSize: '0.9rem', color: 'var(--cyan)', textTransform: 'uppercase' }}>
-            New Nexus Point
+            New Report
           </h3>
-          <input ref={titleRef} type="text" placeholder="Issue Title..." autoFocus />
-          <textarea ref={descRef} placeholder="Detailed description..." style={{ 
+          <input ref={titleRef} type="text" placeholder="Title..." autoFocus />
+          <textarea ref={descRef} placeholder="Details..." style={{ 
             background: 'rgba(255,255,255,0.05)', 
             border: '1px solid rgba(255,255,255,0.1)',
             color: '#fff',
@@ -179,7 +172,7 @@ export default function CityMapView({ issues, onAddIssue }) {
             height: '60px'
           }} />
           <button className="glass-btn" onClick={submitIssue} style={{ background: 'var(--cyan)', color: '#000' }}>
-            SAVE PIN
+            CONFIRM PIN
           </button>
           <button className="glass-btn" onClick={() => setShowForm(false)} style={{ marginTop: 5, background: 'transparent' }}>
             CANCEL
