@@ -62,6 +62,13 @@ function CityModel({ onCityClick }) {
   const { scene } = useGLTF('/cyberpunk_city_-_1.glb');
   
   useEffect(() => {
+    // 1. Measure and Scale
+    const box = new THREE.Box3().setFromObject(scene);
+    const size = box.getSize(new THREE.Vector3()).length();
+    const desiredSize = 400; 
+    const scale = desiredSize / size;
+    scene.scale.set(scale, scale, scale);
+
     scene.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -128,7 +135,7 @@ export default function CityMapView({ issues, onAddIssue }) {
 
       <Canvas 
         shadows 
-        camera={{ position: [150, 150, 150], fov: 45 }}
+        camera={{ position: [100, 100, 100], fov: 45 }}
       >
         <ambientLight intensity={4.0} color="#ffffff" />
         <spotLight position={[100, 200, 100]} angle={0.5} penumbra={1} intensity={20} castShadow />
