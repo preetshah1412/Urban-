@@ -72,8 +72,7 @@ export default function App() {
         zIndex: view === 'map' ? 5 : 0,
         opacity: view === 'map' ? 1 : 0,
         pointerEvents: view === 'map' ? 'auto' : 'none',
-        transition: 'opacity 0.6s ease-in-out, transform 0.6s ease-in-out',
-        transform: view === 'map' ? 'scale(1)' : 'scale(1.1)'
+        transition: 'opacity 0.6s ease-in-out'
       }}>
         <CityMapView issues={issues} onAddIssue={addIssue} />
       </div>

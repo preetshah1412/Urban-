@@ -139,10 +139,10 @@ export default function CityMapView({ issues, onAddIssue }) {
 
       <Canvas 
         shadows 
-        camera={{ position: [0, 150, 150], fov: 45 }}
+        camera={{ position: [0, 80, 80], fov: 45 }}
       >
         <ambientLight intensity={6.0} color="#ffffff" />
-        <spotLight position={[100, 200, 100]} angle={0.3} penumbra={1} intensity={10} castShadow />
+        <spotLight position={[50, 150, 50]} angle={0.3} penumbra={1} intensity={15} castShadow />
         <directionalLight position={[-50, 50, -50]} intensity={5.0} color="#00d2ff" />
         
         <CityModel onCityClick={handleCityClick} />
