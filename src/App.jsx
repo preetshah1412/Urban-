@@ -19,13 +19,12 @@ export default function App() {
   const [view, setView] = useState('landing');
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  // 1. Global State & Persistence
   const [issues, setIssues] = useState(() => {
     const saved = localStorage.getItem('urban-nexus-issues');
     return saved ? JSON.parse(saved) : [
-      { id: 1, x: 25, y: 30, title: 'Network Outage', description: 'Central hub is offline', status: 'pending' },
-      { id: 2, x: 60, y: 45, title: 'Water Leak', description: 'Main pipe burst near sector 7', status: 'in-progress' },
-      { id: 3, x: 40, y: 70, title: 'Drone Crash', description: 'Clearance required at deck 4', status: 'resolved' },
+      { id: 1, x: 10, y: 0, z: 20, title: 'Network Outage', description: 'Central hub is offline', status: 'pending' },
+      { id: 2, x: -15, y: 0, z: 5, title: 'Water Leak', description: 'Main pipe burst near sector 7', status: 'in-progress' },
+      { id: 3, x: 25, y: 0, z: -10, title: 'Drone Crash', description: 'Clearance required at deck 4', status: 'resolved' },
     ];
   });
 
@@ -46,13 +45,12 @@ export default function App() {
   };
 
   return (
-    <div style={{ background: '#03050a', minHeight: '100vh', position: 'relative' }}>
+    <div style={{ background: '#03050a', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <TopNav currentView={view} onNavigate={(v) => {
-        window.scrollTo(0, 0); 
         setView(v);
       }} />
 
-      {/* Persistent 3D Drone Layer */}
+      {/* Persistent Landing Drone Layer */}
       <div style={{ 
         position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', 
         zIndex: 1, pointerEvents: 'none',
@@ -68,6 +66,18 @@ export default function App() {
         </Canvas>
       </div>
 
+      {/* Persistent City Map Layer - Stays mounted to keep camera/position */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+        zIndex: view === 'map' ? 5 : 0,
+        opacity: view === 'map' ? 1 : 0,
+        pointerEvents: view === 'map' ? 'auto' : 'none',
+        transition: 'opacity 0.6s ease-in-out, transform 0.6s ease-in-out',
+        transform: view === 'map' ? 'scale(1)' : 'scale(1.1)'
+      }}>
+        <CityMapView issues={issues} onAddIssue={addIssue} />
+      </div>
+
       <AnimatePresence mode="wait">
         {view === 'landing' && (
           <motion.div
@@ -81,26 +91,15 @@ export default function App() {
             <LandingPage onEnter={() => setView('map')} onScroll={setScrollProgress} />
           </motion.div>
         )}
-        {view === 'map' && (
-          <motion.div
-            key="map"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            style={{ position: 'relative', zIndex: 10, pointerEvents: 'auto' }}
-          >
-            <CityMapView issues={issues} onAddIssue={addIssue} />
-          </motion.div>
-        )}
+        
         {view === 'kanban' && (
           <motion.div
             key="kanban"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            style={{ position: 'relative', zIndex: 10 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.5 }}
+            style={{ position: 'relative', zIndex: 20 }}
           >
             <KanbanView 
               issues={issues} 

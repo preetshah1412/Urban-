@@ -66,26 +66,22 @@ function Pins({ issues }) {
         const color = STATUS_COLORS[issue.status] || 0xffffff;
         const phase = (issue.id % 10) * Math.PI * 2;
         
-        // Map 0-100% to -200 to 200 for the 3D scene
-        const posX = (issue.x / 100) * 400 - 200;
-        const posZ = (issue.y / 100) * 400 - 200;
-
         return (
           <group 
             key={issue.id} 
-            position={[posX, 2, posZ]} 
+            position={[issue.x, issue.y + 2, issue.z]} 
             userData={{ isPin: true, id: issue.id, phase }}
           >
             <mesh>
-              <cylinderGeometry args={[0.2, 0.2, 4]} />
-              <meshBasicMaterial color={0xffffff} transparent opacity={0.6} />
+              <cylinderGeometry args={[0.1, 0.1, 4]} />
+              <meshBasicMaterial color={0xffffff} transparent opacity={0.4} />
             </mesh>
             <mesh position={[0, 2.5, 0]}>
-              <sphereGeometry args={[1.2, 16, 16]} />
+              <sphereGeometry args={[0.8, 16, 16]} />
               <meshBasicMaterial color={color} />
             </mesh>
             <mesh position={[0, -1.9, 0]} rotation={[-Math.PI/2, 0, 0]}>
-              <ringGeometry args={[0.8, 3.5, 32]} />
+              <ringGeometry args={[0.4, 1.5, 32]} />
               <meshBasicMaterial color={color} side={THREE.DoubleSide} transparent opacity={0.3} />
             </mesh>
           </group>
@@ -95,22 +91,50 @@ function Pins({ issues }) {
   );
 }
 
+function CityModel({ onCityClick }) {
+  const { scene } = useGLTF('/cyberpunk_city_-_1.glb');
+  
+  useEffect(() => {
+    const box = new THREE.Box3().setFromObject(scene);
+    const size = box.getSize(new THREE.Vector3()).length();
+    const center = box.getCenter(new THREE.Vector3());
+    
+    scene.position.x += (scene.position.x - center.x);
+    scene.position.y += (scene.position.y - center.y); 
+    scene.position.z += (scene.position.z - center.z);
+    scene.position.y = 0;
+    
+    const desiredSize = 400; 
+    const scale = desiredSize / size;
+    scene.scale.set(scale, scale, scale);
+    
+    scene.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+  }, [scene]);
+
+  return (
+    <primitive 
+      object={scene} 
+      onClick={(e) => {
+        e.stopPropagation();
+        onCityClick(e.point);
+      }}
+    />
+  );
+}
+
 export default function CityMapView({ issues, onAddIssue }) {
   const [showForm, setShowForm] = useState(false);
   const [targetCoords, setTargetCoords] = useState(null);
   const titleRef = useRef();
   const descRef = useRef();
-  const mapRef = useRef();
 
-  const handleMapClick = (event) => {
-    // 2. City Map: Click-to-Coordinate
-    if (showForm) return;
-    
-    const rect = mapRef.current.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * 100;
-    const y = ((event.clientY - rect.top) / rect.height) * 100;
-
-    setTargetCoords({ x, y });
+  const handleCityClick = (point) => {
+    setTargetCoords({ x: point.x, y: point.y, z: point.z });
     setShowForm(true);
   };
 
@@ -124,6 +148,7 @@ export default function CityMapView({ issues, onAddIssue }) {
       description,
       x: targetCoords.x,
       y: targetCoords.y,
+      z: targetCoords.z,
       status: 'pending'
     });
 
@@ -135,47 +160,33 @@ export default function CityMapView({ issues, onAddIssue }) {
   const resolutionRate = issues.length ? Math.round((resolvedCount / issues.length) * 100) : 0;
 
   return (
-    <div 
-      ref={mapRef}
-      className="city-map-container fade-in" 
-      style={{ cursor: 'crosshair', position: 'relative' }}
-    >
+    <div className="city-map-container fade-in" style={{ cursor: 'default' }}>
       <div id="metric-strip" className="glass" style={{ pointerEvents: 'auto' }}>
         <div className="metric">
-          <span className="metric-label">Live Issues</span>
+          <span className="metric-label">City Infrastructure</span>
           <span className="metric-value">{issues.length}</span>
         </div>
         <div className="metric">
-          <span className="metric-label">Solved</span>
-          <span className="metric-value">{resolvedCount}</span>
-        </div>
-        <div className="metric">
-          <span className="metric-label">Success Rate</span>
+          <span className="metric-label">Resolution</span>
           <span className="metric-value">{resolutionRate}%</span>
         </div>
       </div>
 
       <Canvas 
         shadows 
-        camera={{ position: [0, 100, 100], fov: 45 }}
-        onClick={handleMapClick}
+        camera={{ position: [0, 150, 150], fov: 45 }}
       >
         <ambientLight intensity={6.0} color="#ffffff" />
-        <directionalLight 
-          position={[50, 150, 50]} 
-          intensity={8.0} 
-          castShadow 
-          shadow-mapSize={[2048, 2048]}
-        />
+        <spotLight position={[100, 200, 100]} angle={0.3} penumbra={1} intensity={10} castShadow />
         <directionalLight position={[-50, 50, -50]} intensity={5.0} color="#00d2ff" />
         
-        <CityModel />
+        <CityModel onCityClick={handleCityClick} />
         <Pins issues={issues} />
         
         <OrbitControls 
           enableDamping 
           dampingFactor={0.05} 
-          maxPolarAngle={Math.PI / 2 - 0.05} 
+          maxPolarAngle={Math.PI / 2 - 0.1} 
         />
         <Environment preset="city" />
       </Canvas>
