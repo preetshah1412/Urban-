@@ -53,7 +53,6 @@ function Pins({ issues }) {
             </mesh>
           </group>
         );
-        );
       })}
     </group>
   );
