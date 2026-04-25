@@ -37,18 +37,18 @@ function Pins({ issues }) {
             userData={{ isPin: true, id: issue.id, phase }}
           >
             {/* Beam */}
-            <mesh position={[0, 5, 0]}>
-              <cylinderGeometry args={[0.05, 0.05, 10]} />
+            <mesh position={[0, 2, 0]}>
+              <cylinderGeometry args={[0.02, 0.02, 4]} />
               <meshBasicMaterial color={color} transparent opacity={0.3} />
             </mesh>
             {/* Floating Orb */}
-            <mesh position={[0, 10, 0]}>
-              <sphereGeometry args={[1.5, 16, 16]} />
+            <mesh position={[0, 4, 0]}>
+              <sphereGeometry args={[0.4, 16, 16]} />
               <meshBasicMaterial color={color} />
             </mesh>
             {/* Ground Ring */}
-            <mesh rotation={[-Math.PI/2, 0, 0]} position={[0, 0.1, 0]}>
-              <ringGeometry args={[1, 2, 32]} />
+            <mesh rotation={[-Math.PI/2, 0, 0]} position={[0, 0.05, 0]}>
+              <ringGeometry args={[0.5, 1, 32]} />
               <meshBasicMaterial color={color} side={THREE.DoubleSide} transparent opacity={0.6} />
             </mesh>
           </group>
