@@ -2,42 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, OrbitControls, Environment } from '@react-three/drei';
 import * as THREE from 'three';
-import { usePolisState, addIssue, COLOR_HEX } from '../state.js';
 import './CityMap.css';
-
-function CityModel() {
-  const { scene } = useGLTF('/cyberpunk_city_-_1.glb');
-  
-  useEffect(() => {
-    // Auto-scale model
-    const box = new THREE.Box3().setFromObject(scene);
-    const size = box.getSize(new THREE.Vector3()).length();
-    const center = box.getCenter(new THREE.Vector3());
-    
-    scene.position.x += (scene.position.x - center.x);
-    scene.position.y += (scene.position.y - center.y); 
-    scene.position.z += (scene.position.z - center.z);
-    
-    scene.position.y = 0;
-    
-    const desiredSize = 400; // Larger city
-    const scale = desiredSize / size;
-    scene.scale.set(scale, scale, scale);
-    
-    scene.traverse((child) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        if (child.material) {
-          child.material.roughness = 0.3;
-          child.material.metalness = 0.8;
-        }
-      }
-    });
-  }, [scene]);
-
-  return <primitive object={scene} />;
-}
 
 const STATUS_COLORS = {
   pending: 0xff2a2a,     // Red
