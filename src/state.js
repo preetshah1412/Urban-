@@ -1,5 +1,5 @@
 /* ===================================================================
-   Polis Nexus — Unified State Atom
+   Urban Lens — Unified State Atom
    Single source-of-truth persisted in localStorage.
    Drives drone waypoints, city-map pins, and Kanban cards.
    =================================================================== */
@@ -8,10 +8,10 @@ const STORAGE_KEY = 'polis-nexus-state';
 
 const defaultState = {
   issues: [
-    { id: 1, title: 'Subterranean Network Breach', category: 'infrastructure', status: 'new',         votes: 85,  x: 10,  z: 20  },
-    { id: 2, title: 'Bio-Waste Leakage',          category: 'sanitation',      status: 'in-progress', votes: 34,  x: -15, z: 5   },
-    { id: 3, title: 'Rogue Drone Activity',        category: 'safety',          status: 'resolved',    votes: 210, x: 25,  z: -10 },
-    { id: 4, title: 'Hydroponic Array Failure',    category: 'greenery',        status: 'new',         votes: 45,  x: -25, z: -25 },
+    { id: 1, title: 'Subterranean Network Breach', category: 'infrastructure', status: 'new', votes: 85, x: 10, z: 20 },
+    { id: 2, title: 'Bio-Waste Leakage', category: 'sanitation', status: 'in-progress', votes: 34, x: -15, z: 5 },
+    { id: 3, title: 'Rogue Drone Activity', category: 'safety', status: 'resolved', votes: 210, x: 25, z: -10 },
+    { id: 4, title: 'Hydroponic Array Failure', category: 'greenery', status: 'new', votes: 45, x: -25, z: -25 },
   ],
   droneWaypoints: [
     { x: 0, y: 8, z: 30 },   // Start — high above, facing camera
@@ -80,14 +80,14 @@ export { subscribe, STORAGE_KEY };
 
 export const COLOR_MAP = {
   infrastructure: '#00d2ff',
-  sanitation:     '#ffde00',
-  safety:         '#ff2a2a',
-  greenery:       '#00ff66',
+  sanitation: '#ffde00',
+  safety: '#ff2a2a',
+  greenery: '#00ff66',
 };
 
 export const COLOR_HEX = {
   infrastructure: 0x00d2ff,
-  sanitation:     0xffde00,
-  safety:         0xff2a2a,
-  greenery:       0x00ff66,
+  sanitation: 0xffde00,
+  safety: 0xff2a2a,
+  greenery: 0x00ff66,
 };

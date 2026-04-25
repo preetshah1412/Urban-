@@ -1,30 +1,39 @@
 /* ===================================================================
-   Polis Nexus — Global Design Tokens & Base Styles
+   Urban Lens — Global Design Tokens & Base Styles
    =================================================================== */
 
 :root {
-  --bg:       #03050a;
-  --bg-alt:   #0a0e14;
-  --text:     #ffffff;
+  --bg: #03050a;
+  --bg-alt: #0a0e14;
+  --text: #ffffff;
   --text-dim: #8892b0;
 
-  --cyan:   #00d2ff;
-  --amber:  #ffde00;
-  --red:    #ff2a2a;
-  --green:  #00ff66;
+  --cyan: #00d2ff;
+  --amber: #ffde00;
+  --red: #ff2a2a;
+  --green: #00ff66;
 
-  --glass-bg:     rgba(10, 14, 20, 0.72);
+  --glass-bg: rgba(10, 14, 20, 0.72);
   --glass-border: rgba(0, 210, 255, 0.12);
-  --glass-blur:   blur(20px);
+  --glass-blur: blur(20px);
 
-  --radius:   16px;
+  --radius: 16px;
   --radius-sm: 8px;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-html, body, #root {
-  width: 100%; min-height: 100vh;
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100vh;
   font-family: 'Outfit', system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
@@ -32,9 +41,18 @@ html, body, #root {
 }
 
 /* ---- Scrollbar ---- */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0,210,255,0.25); border-radius: 99px; }
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 210, 255, 0.25);
+  border-radius: 99px;
+}
 
 /* ---- Glass Utility ---- */
 .glass {
@@ -43,7 +61,7 @@ html, body, #root {
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
 }
 
 .glass-btn {
@@ -53,15 +71,16 @@ html, body, #root {
   padding: 10px 22px;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all .25s cubic-bezier(.25,.8,.25,1);
+  transition: all .25s cubic-bezier(.25, .8, .25, 1);
   text-transform: uppercase;
   font-weight: 600;
   font-size: .78rem;
   letter-spacing: 1.2px;
   font-family: inherit;
 }
+
 .glass-btn:hover {
   background: rgba(0, 210, 255, 0.18);
-  box-shadow: 0 0 24px rgba(0,210,255,0.15);
+  box-shadow: 0 0 24px rgba(0, 210, 255, 0.15);
   transform: translateY(-2px);
 }

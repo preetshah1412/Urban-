@@ -37,7 +37,7 @@ export default function LandingPage({ onEnter }) {
       <div className="landing-scroll-content">
 
         <div className="hero-section">
-          <h1 className="hero-title">POLIS NEXUS</h1>
+          <h1 className="hero-title">Urban Lens</h1>
           <p className="hero-subtitle">
             The next evolution in spatial civic reporting and administrative accountability.
           </p>

@@ -7,7 +7,7 @@ export default function TopNav({ currentView, onNavigate }) {
       {/* Brand */}
       <div className="nav-brand" onClick={() => onNavigate('landing')}>
         <span className="brand-icon">◈</span>
-        <span className="brand-text">Polis Nexus</span>
+        <span className="brand-text">Urban Lens</span>
       </div>
 
       {/* Links */}
