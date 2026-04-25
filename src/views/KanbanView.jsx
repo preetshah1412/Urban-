@@ -2,21 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { usePolisState, moveIssue, upvoteIssue, COLOR_MAP } from '../state.js';
 import './Kanban.css';
 
-export default function KanbanView() {
-  const state = usePolisState();
-  const [issues, setIssues] = useState(state.issues);
+export default function KanbanView({ issues, onUpdateStatus, onDelete }) {
   const [draggedId, setDraggedId] = useState(null);
-
-  useEffect(() => {
-    import('../state.js').then(({ subscribe }) => {
-      return subscribe((s) => setIssues(s.issues));
-    });
-  }, []);
 
   const handleDragStart = (e, id) => {
     setDraggedId(id);
     e.dataTransfer.effectAllowed = 'move';
-    // A small timeout allows the dragged visual to look normal before making the source opaque
     setTimeout(() => {
       e.target.style.opacity = '0.4';
     }, 0);
@@ -28,21 +19,19 @@ export default function KanbanView() {
   };
 
   const handleDragOver = (e) => {
-    e.preventDefault(); // Necessary to allow dropping
+    e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   };
 
   const handleDrop = (e, newStatus) => {
     e.preventDefault();
     if (draggedId) {
-      moveIssue(draggedId, newStatus);
+      onUpdateStatus(draggedId, newStatus);
     }
   };
 
-  const sortedIssues = [...issues].sort((a, b) => b.votes - a.votes);
-
   const renderColumn = (status, title) => {
-    const colIssues = sortedIssues.filter(i => i.status === status);
+    const colIssues = issues.filter(i => i.status === status);
     
     return (
       <div 
@@ -50,37 +39,39 @@ export default function KanbanView() {
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, status)}
       >
-        <div className="kanban-header">{title}</div>
+        <div className="kanban-header">
+          {title} <span>({colIssues.length})</span>
+        </div>
         <div className="kanban-cards">
           {colIssues.map(issue => (
             <div 
               key={issue.id}
               className={`card ${issue.status === 'resolved' ? 'resolved-badge' : ''}`}
-              style={{ '--card-color': COLOR_MAP[issue.category] }}
               draggable
               onDragStart={(e) => handleDragStart(e, issue.id)}
               onDragEnd={handleDragEnd}
             >
-              <div className="card-title">{issue.title}</div>
-              <div className="card-meta">
-                <span style={{ textTransform: 'capitalize', color: 'var(--card-color)' }}>
-                  {issue.category}
-                </span>
+              <div className="card-header-row">
+                <div className="card-title">{issue.title}</div>
                 <button 
-                  className="upvote-btn" 
-                  onClick={(e) => { e.stopPropagation(); upvoteIssue(issue.id); }}
+                  className="delete-btn" 
+                  onClick={() => onDelete(issue.id)}
+                  title="Delete Issue"
                 >
-                  ▲ {issue.votes}
+                  ✕
                 </button>
               </div>
               
-              {/* Particle effects for resolved items */}
+              <div className="card-desc">{issue.description}</div>
+              
+              <div className="card-meta">
+                <span className="coord-badge">
+                  Loc: {issue.x.toFixed(0)}%, {issue.y.toFixed(0)}%
+                </span>
+              </div>
+              
               {issue.status === 'resolved' && (
-                <>
-                  <div className="particle" style={{ left: '10%', animationDelay: '0s' }} />
-                  <div className="particle" style={{ left: '50%', animationDelay: '0.5s' }} />
-                  <div className="particle" style={{ left: '80%', animationDelay: '1s' }} />
-                </>
+                <div className="success-glow" />
               )}
             </div>
           ))}
@@ -92,7 +83,7 @@ export default function KanbanView() {
   return (
     <div className="kanban-view-container fade-in">
       <div className="kanban-board">
-        {renderColumn('new', 'New Reports')}
+        {renderColumn('pending', 'Pending')}
         {renderColumn('in-progress', 'In Progress')}
         {renderColumn('resolved', 'Resolved')}
       </div>

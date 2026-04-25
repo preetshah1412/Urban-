@@ -39,6 +39,12 @@ function CityModel() {
   return <primitive object={scene} />;
 }
 
+const STATUS_COLORS = {
+  pending: 0xff2a2a,     // Red
+  'in-progress': 0xffde00, // Yellow/Gold
+  resolved: 0x00ff66     // Neon Green
+};
+
 function Pins({ issues }) {
   const groupRef = useRef();
 
@@ -48,9 +54,8 @@ function Pins({ issues }) {
     
     groupRef.current.children.forEach(pin => {
       if (pin.userData.isPin) {
-        // Orbit scaling pulse
         const scale = 1 + 0.2 * Math.sin(time + pin.userData.phase);
-        pin.children[1].scale.set(scale, scale, scale); // Orb is index 1
+        pin.children[1].scale.set(scale, scale, scale);
       }
     });
   });
@@ -58,28 +63,29 @@ function Pins({ issues }) {
   return (
     <group ref={groupRef}>
       {issues.map(issue => {
-        const color = COLOR_HEX[issue.category];
+        const color = STATUS_COLORS[issue.status] || 0xffffff;
         const phase = (issue.id % 10) * Math.PI * 2;
         
+        // Map 0-100% to -200 to 200 for the 3D scene
+        const posX = (issue.x / 100) * 400 - 200;
+        const posZ = (issue.y / 100) * 400 - 200;
+
         return (
           <group 
             key={issue.id} 
-            position={[issue.x, 2, issue.z]} 
+            position={[posX, 2, posZ]} 
             userData={{ isPin: true, id: issue.id, phase }}
           >
-            {/* Shaft */}
             <mesh>
               <cylinderGeometry args={[0.2, 0.2, 4]} />
               <meshBasicMaterial color={0xffffff} transparent opacity={0.6} />
             </mesh>
-            {/* Orb */}
             <mesh position={[0, 2.5, 0]}>
               <sphereGeometry args={[1.2, 16, 16]} />
               <meshBasicMaterial color={color} />
             </mesh>
-            {/* Halo Ground */}
             <mesh position={[0, -1.9, 0]} rotation={[-Math.PI/2, 0, 0]}>
-              <ringGeometry args={[0.8, 2.5 + (issue.votes * 0.05), 32]} />
+              <ringGeometry args={[0.8, 3.5, 32]} />
               <meshBasicMaterial color={color} side={THREE.DoubleSide} transparent opacity={0.3} />
             </mesh>
           </group>
@@ -89,76 +95,68 @@ function Pins({ issues }) {
   );
 }
 
-export default function CityMapView() {
-  const state = usePolisState();
-  const [issues, setIssues] = useState(state.issues);
+export default function CityMapView({ issues, onAddIssue }) {
   const [showForm, setShowForm] = useState(false);
   const [targetCoords, setTargetCoords] = useState(null);
-  
   const titleRef = useRef();
-  const categoryRef = useRef();
+  const descRef = useRef();
+  const mapRef = useRef();
 
-  useEffect(() => {
-    // Poll or subscribe to state changes if needed. 
-    // For simplicity we just read it on mount or rely on React state
-    // But since state is external, a true subscription is better:
-    import('../state.js').then(({ subscribe }) => {
-      return subscribe((s) => setIssues(s.issues));
-    });
-  }, []);
+  const handleMapClick = (event) => {
+    // 2. City Map: Click-to-Coordinate
+    if (showForm) return;
+    
+    const rect = mapRef.current.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 100;
+    const y = ((event.clientY - rect.top) / rect.height) * 100;
 
-  const handleDoubleClick = (e) => {
-    // We intercept double click on the Canvas container
-    // In R3F, we can just use the onClick on an invisible ground plane
-  };
-
-  const handleGroundClick = (e) => {
-    e.stopPropagation();
-    const { point } = e;
-    setTargetCoords({ x: point.x, z: point.z });
+    setTargetCoords({ x, y });
     setShowForm(true);
   };
 
   const submitIssue = () => {
     const title = titleRef.current.value;
-    const category = categoryRef.current.value;
+    const description = descRef.current.value;
     if (!title || !targetCoords) return;
 
-    addIssue({
+    onAddIssue({
       title,
-      category,
+      description,
       x: targetCoords.x,
-      z: targetCoords.z
+      y: targetCoords.y,
+      status: 'pending'
     });
 
     setShowForm(false);
     setTargetCoords(null);
   };
 
-  // Metrics
   const resolvedCount = issues.filter(i => i.status === 'resolved').length;
   const resolutionRate = issues.length ? Math.round((resolvedCount / issues.length) * 100) : 0;
-  const highest = [...issues].sort((a,b) => b.votes - a.votes)[0];
 
   return (
-    <div className="city-map-container fade-in">
-      {/* Metric Strip Overlay */}
-      <div id="metric-strip" className="glass">
+    <div 
+      ref={mapRef}
+      className="city-map-container fade-in" 
+      onClick={handleMapClick}
+      style={{ cursor: 'crosshair' }}
+    >
+      <div id="metric-strip" className="glass" onClick={e => e.stopPropagation()}>
         <div className="metric">
-          <span className="metric-label">Total Reports</span>
+          <span className="metric-label">Live Issues</span>
           <span className="metric-value">{issues.length}</span>
         </div>
         <div className="metric">
-          <span className="metric-label">Resolution Rate</span>
-          <span className="metric-value">{resolutionRate}%</span>
+          <span className="metric-label">Solved</span>
+          <span className="metric-value">{resolvedCount}</span>
         </div>
         <div className="metric">
-          <span className="metric-label">High Density</span>
-          <span className="metric-value">{highest ? highest.category.toUpperCase() : 'NONE'}</span>
+          <span className="metric-label">Success Rate</span>
+          <span className="metric-value">{resolutionRate}%</span>
         </div>
       </div>
 
-      <Canvas shadows camera={{ position: [0, 80, 80], fov: 45 }}>
+      <Canvas shadows camera={{ position: [0, 100, 100], fov: 45 }} style={{ pointerEvents: 'none' }}>
         <ambientLight intensity={6.0} color="#ffffff" />
         <directionalLight 
           position={[50, 150, 50]} 
@@ -171,39 +169,39 @@ export default function CityMapView() {
         <CityModel />
         <Pins issues={issues} />
         
-        {/* Invisible ground plane to catch clicks */}
-        <mesh 
-          rotation={[-Math.PI/2, 0, 0]} 
-          position={[0, 0, 0]} 
-          onDoubleClick={handleGroundClick}
-        >
-          <planeGeometry args={[1000, 1000]} />
-          <meshBasicMaterial visible={false} />
-        </mesh>
-
         <OrbitControls 
           enableDamping 
           dampingFactor={0.05} 
           maxPolarAngle={Math.PI / 2 - 0.05} 
+          enablePan={false}
         />
         <Environment preset="city" />
       </Canvas>
 
-      {/* Add Issue Form Overlay */}
       {showForm && (
-        <div id="add-issue-form" className="glass slide-in">
-          <h3 style={{ marginBottom: 10, fontSize: '0.9rem', color: '#aaa', textTransform: 'uppercase' }}>
-            Drop a Pin at [{targetCoords.x.toFixed(1)}, {targetCoords.z.toFixed(1)}]
+        <div 
+          id="add-issue-form" 
+          className="glass slide-in" 
+          onClick={e => e.stopPropagation()}
+          style={{ zIndex: 1000 }}
+        >
+          <h3 style={{ marginBottom: 10, fontSize: '0.9rem', color: 'var(--cyan)', textTransform: 'uppercase' }}>
+            New Nexus Point
           </h3>
-          <input ref={titleRef} type="text" placeholder="Describe the issue..." />
-          <select ref={categoryRef}>
-            <option value="infrastructure">Infrastructure</option>
-            <option value="sanitation">Sanitation</option>
-            <option value="safety">Safety</option>
-            <option value="greenery">Greenery</option>
-          </select>
+          <input ref={titleRef} type="text" placeholder="Issue Title..." autoFocus />
+          <textarea ref={descRef} placeholder="Detailed description..." style={{ 
+            background: 'rgba(255,255,255,0.05)', 
+            border: '1px solid rgba(255,255,255,0.1)',
+            color: '#fff',
+            padding: '10px',
+            borderRadius: '4px',
+            marginBottom: '10px',
+            width: '100%',
+            resize: 'none',
+            height: '60px'
+          }} />
           <button className="glass-btn" onClick={submitIssue} style={{ background: 'var(--cyan)', color: '#000' }}>
-            PIN TO MAP
+            SAVE PIN
           </button>
           <button className="glass-btn" onClick={() => setShowForm(false)} style={{ marginTop: 5, background: 'transparent' }}>
             CANCEL
