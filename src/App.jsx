@@ -50,32 +50,34 @@ export default function App() {
         setView(v);
       }} />
 
-      {/* Persistent Landing Drone Layer */}
-      <div style={{ 
-        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', 
-        zIndex: 1, pointerEvents: 'none',
-        opacity: view === 'landing' ? 1 : 0,
-        transition: 'opacity 0.8s ease-in-out'
-      }}>
-        <Canvas 
-          shadows 
-          camera={{ position: [0, 10, 30], fov: 45 }}
-          gl={{ alpha: true, antialias: true }}
-        >
-          <LandingScene scrollProgress={scrollProgress} active={view === 'landing'} />
-        </Canvas>
-      </div>
+      {/* Persistent Landing Drone Layer - Only while on landing */}
+      {view === 'landing' && (
+        <div style={{ 
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', 
+          zIndex: 1, pointerEvents: 'none',
+        }}>
+          <Canvas 
+            shadows 
+            camera={{ position: [0, 10, 30], fov: 45 }}
+            gl={{ alpha: true, antialias: true }}
+          >
+            <LandingScene scrollProgress={scrollProgress} active={true} />
+          </Canvas>
+        </div>
+      )}
 
-      {/* Persistent City Map Layer - Stays mounted to keep camera/position */}
-      <div style={{
-        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-        zIndex: view === 'map' ? 5 : 0,
-        opacity: view === 'map' ? 1 : 0,
-        pointerEvents: view === 'map' ? 'auto' : 'none',
-        transition: 'opacity 0.6s ease-in-out'
-      }}>
-        <CityMapView issues={issues} onAddIssue={addIssue} />
-      </div>
+      {/* Persistent City Map Layer - Stays mounted for Map & Kanban to keep camera */}
+      {(view === 'map' || view === 'kanban') && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          zIndex: view === 'map' ? 5 : 0,
+          opacity: view === 'map' ? 1 : 0,
+          pointerEvents: view === 'map' ? 'auto' : 'none',
+          transition: 'opacity 0.6s ease-in-out'
+        }}>
+          <CityMapView issues={issues} onAddIssue={addIssue} />
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         {view === 'landing' && (

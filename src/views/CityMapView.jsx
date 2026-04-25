@@ -142,7 +142,7 @@ export default function CityMapView({ issues, onAddIssue }) {
       </div>
 
       <Canvas 
-        shadows 
+        shadows={{ type: THREE.PCFShadowMap }}
         camera={{ position: [70, 70, 70], fov: 45 }}
       >
         <ambientLight intensity={4.0} color="#ffffff" />
