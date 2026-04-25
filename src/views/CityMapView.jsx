@@ -62,9 +62,17 @@ function CityModel({ onCityClick }) {
   const { scene } = useGLTF('/cyberpunk_city_-_1.glb');
   
   useEffect(() => {
-    // 1. Measure and Scale
+    // 1. Stable Scaling
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3()).length();
+    const center = box.getCenter(new THREE.Vector3());
+    
+    // Offset the internal scene once so [0,0,0] is the city center
+    scene.position.x -= center.x;
+    scene.position.y -= center.y;
+    scene.position.z -= center.z;
+    scene.position.y = 0; // Keep floor at zero
+    
     const desiredSize = 400; 
     const scale = desiredSize / size;
     scene.scale.set(scale, scale, scale);
@@ -135,16 +143,13 @@ export default function CityMapView({ issues, onAddIssue }) {
 
       <Canvas 
         shadows 
-        camera={{ position: [100, 100, 100], fov: 45 }}
+        camera={{ position: [70, 70, 70], fov: 45 }}
       >
         <ambientLight intensity={4.0} color="#ffffff" />
         <spotLight position={[100, 200, 100]} angle={0.5} penumbra={1} intensity={20} castShadow />
         <pointLight position={[-100, 50, -100]} intensity={10} color="#00d2ff" />
         
-        <Center top>
-          <CityModel onCityClick={handleCityClick} />
-        </Center>
-        
+        <CityModel onCityClick={handleCityClick} />
         <Pins issues={issues} />
         
         <OrbitControls 
