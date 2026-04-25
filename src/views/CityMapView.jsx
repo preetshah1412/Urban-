@@ -138,10 +138,9 @@ export default function CityMapView({ issues, onAddIssue }) {
     <div 
       ref={mapRef}
       className="city-map-container fade-in" 
-      onClick={handleMapClick}
-      style={{ cursor: 'crosshair' }}
+      style={{ cursor: 'crosshair', position: 'relative' }}
     >
-      <div id="metric-strip" className="glass" onClick={e => e.stopPropagation()}>
+      <div id="metric-strip" className="glass" style={{ pointerEvents: 'auto' }}>
         <div className="metric">
           <span className="metric-label">Live Issues</span>
           <span className="metric-value">{issues.length}</span>
@@ -156,7 +155,11 @@ export default function CityMapView({ issues, onAddIssue }) {
         </div>
       </div>
 
-      <Canvas shadows camera={{ position: [0, 100, 100], fov: 45 }} style={{ pointerEvents: 'none' }}>
+      <Canvas 
+        shadows 
+        camera={{ position: [0, 100, 100], fov: 45 }}
+        onClick={handleMapClick}
+      >
         <ambientLight intensity={6.0} color="#ffffff" />
         <directionalLight 
           position={[50, 150, 50]} 
@@ -173,7 +176,6 @@ export default function CityMapView({ issues, onAddIssue }) {
           enableDamping 
           dampingFactor={0.05} 
           maxPolarAngle={Math.PI / 2 - 0.05} 
-          enablePan={false}
         />
         <Environment preset="city" />
       </Canvas>
